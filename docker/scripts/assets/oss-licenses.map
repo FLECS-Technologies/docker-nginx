@@ -1,0 +1,7 @@
+!apk-tools,GPL-2.0,https://raw.githubusercontent.com/alpinelinux/apk-tools/refs/heads/master/LICENSE
+!busybox,GPL-2.0,https://raw.githubusercontent.com/mirror/busybox/refs/heads/master/LICENSE
+musl,MIT,https://raw.githubusercontent.com/kraj/musl/refs/heads/kraj/master/COPYRIGHT
+nginx,BSD-2-Clause,https://raw.githubusercontent.com/nginx/nginx/refs/heads/master/LICENSE
+openssl,Apache-2.0,https://raw.githubusercontent.com/openssl/openssl/refs/heads/master/LICENSE.txt
+pcre2,BSD-3-Clause,https://raw.githubusercontent.com/PCRE2Project/pcre2/refs/heads/main/LICENCE.md
+zlib,Zlib,https://raw.githubusercontent.com/madler/zlib/refs/heads/develop/LICENSE
