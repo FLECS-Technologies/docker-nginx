@@ -45,12 +45,12 @@ ARG BUILD_TYPE
 
 COPY docker/scripts/ /tmp/scripts
 
-RUN mkdir -p /debug \
+RUN mkdir -p /debug/lib/apk/db \
     &&  if [ "$BUILD_TYPE" = "debug" ]; then \
           /tmp/scripts/stage_debug_fs.sh; \
         fi
 
-FROM scratch AS intermediate
+FROM alpine:3 AS intermediate
 
 # executables
 COPY --from=nginx-base /nginx-bin/ /final/
@@ -76,6 +76,12 @@ COPY --from=nginx-base /var/cache/nginx /final/var/cache/nginx
 COPY --from=nginx-base /var/log/nginx /final/var/log/nginx
 
 COPY --from=debug-base /debug/ /final/
+
+# apk package list for SBOM scanner
+COPY --from=nginx-base /nginx-pkg/lib/apk/db/installed.* /intermediate/lib/apk/db/
+COPY --from=debug-base /debug/lib/apk/db/installed.* /intermediate/lib/apk/db/
+RUN mkdir -p /final/lib/apk/db \
+  && cat /intermediate/lib/apk/db/installed.* >/final/lib/apk/db/installed
 
 FROM scratch AS final
 
