@@ -4,7 +4,9 @@
 #   to /nginx-libs. In case of a debug build we additionally copy busybox and
 #   all of its symlinks.
 # ==============================================================================
-FROM nginx:alpine AS nginx-base
+ARG NGINX_BASE_IMAGE="nginx:alpine"
+
+FROM ${NGINX_BASE_IMAGE} AS nginx-base
 
 ARG WITH_OPENSSL
 
@@ -85,6 +87,9 @@ RUN mkdir -p /final/lib/apk/db \
 
 FROM scratch AS final
 
+ARG GIT_SHA="unknown"
+ARG NGINX_BASE_IMAGE="nginx@unknown"
+
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 COPY --from=intermediate /final /
@@ -93,5 +98,7 @@ LABEL org.opencontainers.image.authors="FLECS Technologies GmbH <info@flecs.tech
 LABEL org.opencontainers.image.licenses="Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause-PCRE2 AND MIT AND Zlib"
 LABEL org.opencontainers.image.source="https://github.com/FLECS-Technologies/docker-nginx"
 LABEL org.opencontainers.image.title="Minimal nginx image based on official nginx:alpine"
+LABEL org.opencontainers.image.base.digest="${NGINX_BASE_IMAGE}"
+LABEL org.opencontainers.image.base.git-sha="${GIT_SHA}"
 
 ENTRYPOINT ["nginx", "-c", "/etc/nginx/nginx.conf", "-g", "daemon off;"]

@@ -30,9 +30,22 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_AUTH }}
 
+      - name: Determine Docker image and git sha
+        id: digest
+        run: |
+          digest=$(docker buildx imagetools inspect nginx:alpine \
+            --format 'nginx@{{ .Manifest.Digest }}') || exit 1
+          git_sha=$(git rev-parse HEAD) || exit 1
+
+          echo "docker-sha=$digest" >>"$GITHUB_OUTPUT"
+          echo "git-sha=$git_sha" >>"$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/bake-action@v6
         with:
           files: docker-bake.hcl
           pull: true
           push: true
+          set: |
+            *.args.GIT_SHA=${{ steps.digest.outputs.git-sha }}
+            *.args.NGINX_BASE_IMAGE=${{ steps.digest.outputs.docker-sha }}
