@@ -7,31 +7,11 @@ on:
 
 jobs:
   build-and-push:
-    strategy:
-      matrix:
-        build-type: ["release", "debug"]
-        with-openssl: ["true", "false"]
-
     runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
-      - name: Determine Docker tag
-        id: docker-tag
-        env:
-          BUILD_TYPE: ${{ matrix.build-type }}
-          WITH_OPENSSL: ${{ matrix.with-openssl }}
-        run: |
-          TAG="alpine"
-          if [ "$WITH_OPENSSL" = "true" ]; then
-            TAG="$TAG-openssl";
-          fi
-          if [ "$BUILD_TYPE" = "debug" ]; then
-            TAG="$TAG-debug";
-          fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -50,17 +30,9 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_AUTH }}
 
-      - name: Build and push (${{ matrix.build-type }})
-        uses: docker/build-push-action@v6
+      - name: Build and push
+        uses: docker/bake-action@v6
         with:
-          build-args: |
-            BUILD_TYPE=${{ matrix.build-type }}
-            WITH_OPENSSL=${{ matrix.with-openssl }}
-          context: .
-          file: docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          files: docker-bake.hcl
           pull: true
           push: true
-          tags: flecspublic.azurecr.io/docker/nginx:${{ steps.docker-tag.outputs.tag }}
-          cache-from: type=gha,scope=buildkit-${{ steps.docker-tag.outputs.tag }}
-          cache-to: type=gha,mode=max,scope=buildkit-${{ steps.docker-tag.outputs.tag }}
