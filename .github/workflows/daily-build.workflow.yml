@@ -50,5 +50,7 @@ jobs:
           pull: true
           push: true
           set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
             *.args.GIT_SHA=${{ steps.digest.outputs.git-sha }}
             *.args.NGINX_BASE_IMAGE=${{ steps.digest.outputs.docker-sha }}
